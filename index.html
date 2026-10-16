@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mr. Comiskey's Music Ed Apps</title>
+<meta name="description" content="Music technology apps for Mr. Comiskey's sound engineering, music production, and songwriting classes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --faceplate: #3A3F45;   /* page background: console faceplate grey */
+    --panel: #2C3035;       /* behind tiles and buttons */
+    --silk: #E4E7EA;        /* main text: silkscreen white */
+    --silk-dim: #A7AEB6;    /* secondary text */
+    --led: #FFB23E;         /* amber LED: selection, focus, glow */
+    --tape: #EDE4CC;        /* board tape */
+    --ink: #1F1D1A;         /* marker on tape */
+    --edge: clamp(1rem, 4vw, 3rem);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--faceplate); color: var(--silk); }
+  body {
+    margin: 0;
+    font-family: Archivo, system-ui, sans-serif;
+    line-height: 1.5;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible { outline: 2px solid var(--led); outline-offset: 2px; }
+
+  /* Banner */
+  header { padding: clamp(1.5rem, 5vw, 3.5rem) var(--edge) 1.5rem; }
+  h1 {
+    margin: 0;
+    font-weight: 800;
+    font-stretch: 70%;
+    font-size: clamp(2.4rem, 7.5vw, 6rem);
+    line-height: .92;
+    letter-spacing: -.01em;
+  }
+  .tagline {
+    margin: .9rem 0 0;
+    max-width: 42ch;
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    color: var(--silk-dim);
+  }
+
+  /* Filters */
+  .filters { padding: 0 var(--edge) 1.5rem; display: grid; gap: .55rem; }
+  .filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+  .filter-row h2 {
+    margin: 0 .4rem 0 0;
+    min-width: 3.6rem;
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--silk-dim);
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .35rem .7rem .35rem .55rem;
+    font: inherit;
+    font-size: .875rem;
+    color: var(--silk);
+    background: var(--panel);
+    border: 1px solid #4C525A;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .chip:hover { border-color: #737A83; }
+  .chip::before {             /* the little LED on each console button */
+    content: "";
+    width: .5rem; height: .5rem;
+    border-radius: 50%;
+    background: #1E2125;
+    box-shadow: inset 0 0 0 1px #565C64;
+  }
+  .chip[aria-pressed="true"]::before { background: var(--led); box-shadow: 0 0 6px var(--led); }
+
+  /* Tile grid: 4 across, 2 across on phones held upright */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 3px;
+    margin: 0; padding: 0;
+    list-style: none;
+  }
+  .tile {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: var(--panel);
+    transition: transform .35s cubic-bezier(.2, .7, .2, 1), box-shadow .35s;
+  }
+  @media (orientation: portrait) and (max-width: 600px) {
+    .filter-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: calc(-1 * var(--edge)); padding-right: var(--edge); }
+    .filter-row h2 { flex: none; }
+    .chip { flex: none; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tile { aspect-ratio: 3 / 4; }
+  }
+  .tile[hidden] { display: none; }
+  .tile.active {
+    z-index: 2;
+    transform: scale(1.045);
+    box-shadow:
+      0 0 0 2px var(--led),
+      0 18px 50px -10px rgba(0, 0, 0, .6),
+      0 0 44px -6px color-mix(in srgb, var(--led) 55%, transparent);
+  }
+
+  .tile-link {
+    position: absolute; inset: 0;
+    display: block;
+    overflow: hidden;
+    color: inherit;
+    text-decoration: none;
+  }
+  .tile-link:focus-visible { outline-offset: -3px; }
+
+  .media { position: absolute; inset: 0; filter: saturate(.12) brightness(.8); transition: filter .35s; }
+  .tile.active .media { filter: none; }
+  .media > * {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: top left;
+  }
+  .media video { opacity: 0; transition: opacity .3s; }
+  .tile.playing .media video { opacity: 1; }
+  .placeholder {   /* shown until a screenshot is added */
+    background:
+      repeating-linear-gradient(90deg, rgba(0, 0, 0, .16) 0 2px, transparent 2px 18px),
+      radial-gradient(120% 90% at 20% 10%,
+        color-mix(in srgb, var(--c) 80%, white) 0%,
+        var(--c) 45%,
+        color-mix(in srgb, var(--c) 40%, black) 100%);
+  }
+
+  /* Board tape title */
+  .tape {
+    position: absolute;
+    top: .8rem; left: .6rem;
+    max-width: calc(100% - 1.2rem);
+    padding: .3em .7em .22em;
+    font-family: "Permanent Marker", "Marker Felt", cursive;
+    font-size: clamp(1rem, 1.9vw, 1.65rem);
+    line-height: 1.1;
+    color: var(--ink);
+    background: linear-gradient(180deg, #F2EAD5, #E4D9BC);
+    transform: rotate(var(--tilt));
+    clip-path: polygon(0 6%, 4% 0, 50% 3%, 96% 0, 100% 8%, 98% 35%, 100% 62%, 97% 88%, 100% 100%, 55% 97%, 3% 100%, 0 92%, 2% 64%, 0 38%, 3% 18%);
+  }
+
+  .source {
+    position: absolute;
+    top: 3.6rem; left: .7rem;
+    padding: .15rem .5rem;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--silk);
+    background: rgba(28, 31, 35, .82);
+    border-radius: 3px;
+  }
+
+  /* Description that appears on hover/tap */
+  .info {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 2.5rem .9rem .9rem;
+    background: linear-gradient(to top, rgba(22, 24, 28, .94) 55%, transparent);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity .3s, transform .3s;
+  }
+  .tile.active .info { opacity: 1; transform: none; }
+  .info p {
+    margin: 0;
+    font-size: clamp(.82rem, 1.15vw, 1rem);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .launch {
+    display: none;
+    margin-top: .7rem;
+    padding: .55rem 1.1rem;
+    font-weight: 700;
+    color: #241700;
+    background: var(--led);
+    border-radius: 4px;
+    text-decoration: none;
+    pointer-events: auto;
+  }
+  .tile.by-touch .launch { display: inline-block; }
+
+  .empty { margin: 0; padding: 2rem var(--edge); color: var(--silk-dim); }
+
+  footer { padding: 2.5rem var(--edge) 3rem; color: var(--silk-dim); }
+  footer a { color: var(--silk); text-decoration-color: var(--led); text-underline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile, .media, .info, .media video { transition: none; }
+    .tile.active { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mr. Comiskey's Music Ed Apps</h1>
+  <p class="tagline">These tools build the skills. The music is yours.</p>
+</header>
+
+<nav class="filters" aria-label="Filter apps">
+  <div class="filter-row" id="course-filter"><h2>Course</h2></div>
+  <div class="filter-row" id="topic-filter"><h2>Topic</h2></div>
+</nav>
+
+<main>
+  <ul class="grid" id="grid"></ul>
+  <p class="empty" id="empty" hidden>Nothing matches that course and topic. Set one of them back to All.</p>
+</main>
+
+<footer>
+  Questions or ideas? Email <a href="mailto:mcomiskey@cps.edu">mcomiskey@cps.edu</a>
+</footer>
+
+<script>
+/* =====================================================================
+   YOUR APPS AND LINKS — edit this list to add, remove, or reorder boxes.
+   Boxes appear in the order listed here.
+
+   type:     "app" (shows a Launch button on touch) or "link" (shows Open)
+   title:    name written on the tape
+   url:      where the box goes (always opens in a new tab)
+   desc:     one or two sentences shown on hover/tap
+   courses:  any of "Sound Engineering", "Music Production", "Songwriting"
+   topics:   any words you like; the Topic filter builds itself from these
+   image:    screenshot file, e.g. "media/mixerlab.jpg" (optional)
+   video:    short demo loop, e.g. "media/mixerlab.mp4" (optional)
+   color:    color shown until a screenshot is added (optional)
+   source:   small corner label for link boxes, e.g. "Google Slides"
+   ===================================================================== */
+const ITEMS = [
+  {
+    type: "app",
+    title: "MixerLab",
+    url: "https://mixerlab.mrcomiskey.com",
+    desc: "Run a virtual mixing console. Train your ears on EQ, spot what changed, and match a reference mix.",
+    courses: ["Sound Engineering", "Music Production"],
+    topics: ["Mixing", "EQ", "Ear training"],
+    image: "media/mixerlab.jpg",
+    video: "media/mixerlab.mp4",
+    color: "#E2574C"
+  },
+  {
+    type: "app",
+    title: "SynthLab",
+    url: "https://synthlab.mrcomiskey.com",
+    desc: "Build sounds from scratch with oscillators, filters, and envelopes, then recreate patches by ear.",
+    courses: ["Music Production"],
+    topics: ["Synthesis", "Sound design"],
+    image: "media/synthlab.jpg",
+    video: "media/synthlab.mp4",
+    color: "#2FB59B"
+  },
+  {
+    type: "app",
+    title: "AudioPlot",
+    url: "https://audioplot.mrcomiskey.com",
+    desc: "Design studio and stage plots, then follow the signal from microphone to speaker.",
+    courses: ["Sound Engineering"],
+    topics: ["Signal flow", "Live sound", "Studio setup"],
+    image: "media/audioplot.jpg",
+    video: "media/audioplot.mp4",
+    color: "#4A90D9"
+  },
+  {
+    // EXAMPLE link box: replace the url and words with a real link
+    type: "link",
+    title: "Song Structure Slides",
+    url: "https://docs.google.com/presentation/",
+    desc: "Verse, chorus, bridge: the slides from class on how songs are built.",
+    courses: ["Songwriting"],
+    topics: ["Song form"],
+    source: "Google Slides",
+    color: "#E8B730"
+  }
+];
+
+const COURSE_ORDER = ["Sound Engineering", "Music Production", "Songwriting"];
+const TILTS = [-1.6, 1.1, -0.8, 1.6, -1.2, 0.7];
+
+/* ---------- nothing below needs editing ---------- */
+const grid = document.getElementById("grid");
+const empty = document.getElementById("empty");
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const tiles = [];
+let activeTile = null;
+let lastPointer = "";
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text) n.textContent = text;
+  return n;
+}
+
+ITEMS.forEach((item, i) => {
+  const isLink = item.type === "link";
+  const tile = el("li", "tile");
+  tile.style.setProperty("--c", item.color || "#7A8591");
+  tile.style.setProperty("--tilt", TILTS[i % TILTS.length] + "deg");
+  tile._item = item;
+
+  const link = el("a", "tile-link");
+  link.href = item.url;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.setAttribute("aria-label", item.title + " (opens in a new tab)");
+  link.setAttribute("aria-describedby", "desc-" + i);
+
+  const media = el("div", "media");
+  media.append(el("div", "placeholder"));
+  if (item.image) {
+    const img = new Image();
+    img.alt = "";
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.onerror = () => img.remove();
+    img.src = item.image;
+    media.append(img);
+  }
+  if (item.video) {
+    const v = document.createElement("video");
+    v.muted = true; v.loop = true; v.playsInline = true;
+    v.preload = "none";
+    v.dataset.src = item.video;
+    v.setAttribute("aria-hidden", "true");
+    media.append(v);
+  }
+  link.append(media, el("span", "tape", item.title));
+  if (isLink && item.source) link.append(el("span", "source", item.source));
+
+  const info = el("div", "info");
+  const p = el("p", "", item.desc);
+  p.id = "desc-" + i;
+  const launch = el("a", "launch", isLink ? "Open" : "Launch");
+  launch.href = item.url;
+  launch.target = "_blank";
+  launch.rel = "noopener";
+  info.append(p, launch);
+
+  tile.append(link, info);
+  grid.append(tile);
+  tiles.push(tile);
+
+  // Mouse: hover previews, click launches
+  tile.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") activate(tile, false); });
+  tile.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") deactivate(tile); });
+
+  // Touch: first tap previews and shows the Launch button; keyboard Enter launches
+  link.addEventListener("click", e => {
+    const touch = lastPointer === "touch" || lastPointer === "pen";
+    lastPointer = "";
+    if (!touch) return;
+    e.preventDefault();
+    if (!tile.classList.contains("by-touch")) activate(tile, true);
+  });
+
+  // Keyboard: tabbing onto a box previews it
+  tile.addEventListener("focusin", () => { if (activeTile !== tile) activate(tile, false); });
+  tile.addEventListener("focusout", e => { if (!tile.contains(e.relatedTarget)) deactivate(tile); });
+});
+
+grid.addEventListener("pointerdown", e => { lastPointer = e.pointerType; });
+document.addEventListener("pointerdown", e => {
+  if (activeTile && !activeTile.contains(e.target)) deactivate(activeTile);
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && activeTile) deactivate(activeTile); });
+
+function activate(tile, byTouch) {
+  if (activeTile && activeTile !== tile) deactivate(activeTile);
+  activeTile = tile;
+  tile.classList.add("active");
+  tile.classList.toggle("by-touch", byTouch);
+  const v = tile.querySelector("video");
+  if (v && !reduceMotion.matches) {
+    if (!v.getAttribute("src")) v.src = v.dataset.src;   // load the clip only when needed
+    v.play().then(() => {
+      if (tile.classList.contains("active")) tile.classList.add("playing");
+    }).catch(() => {});
+  }
+}
+
+function deactivate(tile) {
+  tile.classList.remove("active", "by-touch", "playing");
+  const v = tile.querySelector("video");
+  if (v) { v.pause(); try { v.currentTime = 0; } catch (err) {} }
+  if (activeTile === tile) activeTile = null;
+}
+
+/* Filters */
+const state = { course: "All", topic: "All" };
+const usedCourses = COURSE_ORDER.filter(c => ITEMS.some(it => (it.courses || []).includes(c)));
+const usedTopics = [...new Set(ITEMS.flatMap(it => it.topics || []))].sort((a, b) => a.localeCompare(b));
+
+function buildRow(rowId, key, values) {
+  const row = document.getElementById(rowId);
+  const buttons = ["All", ...values].map(v => {
+    const b = el("button", "chip", v);
+    b.type = "button";
+    b.setAttribute("aria-pressed", v === "All");
+    b.addEventListener("click", () => {
+      state[key] = v;
+      buttons.forEach(x => x.setAttribute("aria-pressed", x === b));
+      applyFilters();
+    });
+    row.append(b);
+    return b;
+  });
+}
+
+function applyFilters() {
+  let shown = 0;
+  tiles.forEach(t => {
+    const it = t._item;
+    const ok = (state.course === "All" || (it.courses || []).includes(state.course)) &&
+               (state.topic === "All" || (it.topics || []).includes(state.topic));
+    t.hidden = !ok;
+    if (ok) shown++;
+  });
+  empty.hidden = shown > 0;
+}
+
+buildRow("course-filter", "course", usedCourses);
+buildRow("topic-filter", "topic", usedTopics);
+</script>
+</body>
+</html>
