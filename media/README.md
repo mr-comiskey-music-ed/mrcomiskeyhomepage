@@ -1,10 +1,8 @@
 # Media
 
-Put each box's screenshot and demo clip here, named to match the list in index.html:
+Each app box uses two files named exactly like the app (capitals included):
 
-- `mixerlab.jpg` and `mixerlab.mp4`
-- `synthlab.jpg` and `synthlab.mp4`
-- `audioplot.jpg` and `audioplot.mp4`
+- `AppName.jpg` — the still screenshot (about 900px wide is plenty)
+- `AppName.mp4` — the short demo loop (H.264, no audio, ~720px wide)
 
-Screenshots: Cmd-Shift-4 on a Mac, then convert to JPG.
-Clips: 5–8 seconds, no sound needed, exported from QuickTime at 720p.
+The app's link is worked out from the same name: AppName → https://appname.mrcomiskey.com

@@ -125,7 +125,7 @@
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
-    object-position: top left;
+    object-position: var(--focus, center top);
   }
   .media video { opacity: 0; transition: opacity .3s; }
   .tile.playing .media video { opacity: 1; }
@@ -234,46 +234,49 @@
    YOUR APPS AND LINKS — edit this list to add, remove, or reorder boxes.
    Boxes appear in the order listed here.
 
-   type:     "app" (shows a Launch button on touch) or "link" (shows Open)
-   title:    name written on the tape
-   url:      where the box goes (always opens in a new tab)
-   desc:     one or two sentences shown on hover/tap
-   topics:   any words you like; the filter buttons build themselves from these
-   image:    screenshot file, e.g. "media/mixerlab.jpg" (optional)
-   video:    short demo loop, e.g. "media/mixerlab.mp4" (optional)
-   color:    color shown until a screenshot is added (optional)
-   source:   small corner label for link boxes, e.g. "Google Slides"
+   APP BOXES only need:
+     name:    the app's name, e.g. "MixerLab". The page works out the rest:
+                link       https://mixerlab.mrcomiskey.com
+                screenshot media/MixerLab.jpg
+                demo clip  media/MixerLab.mp4
+              (file names must match the name exactly, capitals included)
+     desc:    one or two sentences shown on hover/tap
+     topics:  any words you like; the filter buttons build themselves from these
+
+   LINK BOXES (Google Slides, etc.) use type: "link" and spell things out:
+     type: "link", title, url, desc, topics,
+     source: small corner label, e.g. "Google Slides"
+     image / video: optional, e.g. "media/SongForm.jpg"
+
+   Optional on any box:
+     color:   shown if there's no screenshot
+     focus:   which part of the picture to keep when it's cropped to fit,
+              e.g. "top", "center", "left top" (default "center top")
    ===================================================================== */
 const ITEMS = [
   {
-    type: "app",
-    title: "MixerLab",
-    url: "https://mixerlab.mrcomiskey.com",
+    name: "MixerLab",
     desc: "Run a virtual mixing console. Train your ears on EQ, spot what changed, and match a reference mix.",
     topics: ["Mixing", "EQ", "Ear training"],
-    image: "media/mixerlab.jpg",
-    video: "media/mixerlab.mp4",
     color: "#E2574C"
   },
   {
-    type: "app",
-    title: "SynthLab",
-    url: "https://synthlab.mrcomiskey.com",
+    name: "SynthLab",
     desc: "Build sounds from scratch with oscillators, filters, and envelopes, then recreate patches by ear.",
     topics: ["Synthesis", "Sound design"],
-    image: "media/synthlab.jpg",
-    video: "media/synthlab.mp4",
     color: "#2FB59B"
   },
   {
-    type: "app",
-    title: "AudioPlot",
-    url: "https://audioplot.mrcomiskey.com",
+    name: "AudioPlot",
     desc: "Design studio and stage plots, then follow the signal from microphone to speaker.",
     topics: ["Signal flow", "Live sound", "Studio setup"],
-    image: "media/audioplot.jpg",
-    video: "media/audioplot.mp4",
     color: "#4A90D9"
+  },
+  {
+    name: "Launcher",
+    desc: "Open your project assignment with tools beside it: a step checklist, mix tips, chords and notes, BPM, and a glossary.",
+    topics: ["Projects"],
+    color: "#2E5E4A"
   },
   {
     // EXAMPLE link box: replace the url and words with a real link
@@ -286,6 +289,16 @@ const ITEMS = [
     color: "#E8B730"
   }
 ];
+
+// Fill in links and file names for app boxes from their name
+ITEMS.forEach(it => {
+  if (it.type === "link") return;
+  it.type = "app";
+  it.title = it.title || it.name;
+  it.url = it.url || "https://" + it.name.toLowerCase() + ".mrcomiskey.com";
+  if (it.image === undefined) it.image = "media/" + it.name + ".jpg";
+  if (it.video === undefined) it.video = "media/" + it.name + ".mp4";
+});
 
 const TILTS = [-1.6, 1.1, -0.8, 1.6, -1.2, 0.7];
 
@@ -309,6 +322,7 @@ ITEMS.forEach((item, i) => {
   const tile = el("li", "tile");
   tile.style.setProperty("--c", item.color || "#7A8591");
   tile.style.setProperty("--tilt", TILTS[i % TILTS.length] + "deg");
+  if (item.focus) tile.style.setProperty("--focus", item.focus);
   tile._item = item;
 
   const link = el("a", "tile-link");
