@@ -241,7 +241,8 @@
                 demo clip  media/MixerLab.mp4
               (file names must match the name exactly, capitals included)
      desc:    one or two sentences shown on hover/tap
-     topics:  any words you like; the filter buttons build themselves from these
+     topics:  any of "Mixing", "Music Production", "Live Sound",
+              "Sound Recording", "Music Listening"
 
    LINK BOXES (Google Slides, etc.) use type: "link" and spell things out:
      type: "link", title, url, desc, topics,
@@ -257,52 +258,51 @@ const ITEMS = [
   {
     name: "MixerLab",
     desc: "Run a virtual mixing console. Train your ears on EQ, spot what changed, and match a reference mix.",
-    topics: ["Mixing", "EQ", "Ear training"],
+    topics: ["Mixing", "Live Sound"],
     color: "#E2574C"
   },
   {
     name: "SynthLab",
     desc: "Build sounds from scratch with oscillators, filters, and envelopes, then recreate patches by ear.",
-    topics: ["Synthesis", "Sound design"],
+    topics: ["Music Production"],
     color: "#2FB59B"
   },
   {
     name: "AudioPlot",
     desc: "Design studio and stage plots, then follow the signal from microphone to speaker.",
-    topics: ["Signal flow", "Live sound", "Studio setup"],
+    topics: ["Live Sound", "Sound Recording"],
     color: "#4A90D9"
   },
   {
     name: "Launcher",
     desc: "Open your project assignment with tools beside it: a step checklist, mix tips, chords and notes, BPM, and a glossary.",
-    topics: ["Projects"],
+    topics: ["Music Production"],
     color: "#2E5E4A"
   },
   {
     name: "3DMixLab",
     desc: "See your mix in 3D. Place each instrument by pitch, pan, and depth so every sound gets its own space.",
-    topics: ["Mixing", "EQ"],
+    topics: ["Mixing"],
     color: "#8E5BE8"
   },
   {
     name: "AudioQuest",
     desc: "Choose-your-own-adventure studio challenges. Diagnose recording and mixing problems and pick the right tool to fix them.",
-    topics: ["Mixing", "Recording", "Effects"],
+    topics: ["Mixing", "Sound Recording"],
     color: "#F0B92B"
   },
   {
     name: "BreakItDown",
     desc: "Map a song's structure. Tap the tempo, mark verses, choruses, and bridges, and track how the instrumentation changes.",
-    topics: ["Song form", "Listening"],
+    topics: ["Music Listening"],
     color: "#5A63E0"
   },
   {
-    // EXAMPLE link box: replace the url and words with a real link
     type: "link",
     title: "A.M.P. Curriculum",
     url: "https://docs.google.com/presentation/d/1qJR2vEPAK1g6CzM3S-IJ61ZR8hwjvzUZeJmgpsSd5eA/preview?slide=id.p",
     desc: "Curriculum Slide Deck for Advanced Music Production",
-    topics: [""],
+    topics: ["Music Production"],
     source: "Google Slides",
     color: "#E8B730"
   }
@@ -317,6 +317,9 @@ ITEMS.forEach(it => {
   if (it.image === undefined) it.image = "media/" + it.name + ".jpg";
   if (it.video === undefined) it.video = "media/" + it.name + ".mp4";
 });
+
+// Filter buttons appear in this order (any other topic you use is added at the end)
+const TOPIC_ORDER = ["Mixing", "Music Production", "Live Sound", "Sound Recording", "Music Listening"];
 
 const TILTS = [-1.6, 1.1, -0.8, 1.6, -1.2, 0.7];
 
@@ -432,7 +435,9 @@ function deactivate(tile) {
 
 /* Filters */
 const state = { topic: "All" };
-const usedTopics = [...new Set(ITEMS.flatMap(it => it.topics || []))].sort((a, b) => a.localeCompare(b));
+const allTopics = [...new Set(ITEMS.flatMap(it => it.topics || []).filter(Boolean))];
+const usedTopics = [...TOPIC_ORDER.filter(t => allTopics.includes(t)),
+                    ...allTopics.filter(t => !TOPIC_ORDER.includes(t))];
 
 function buildRow(rowId, key, values) {
   const row = document.getElementById(rowId);
