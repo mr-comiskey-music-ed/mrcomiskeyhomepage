@@ -38,8 +38,11 @@
     margin: 0;
     font-family: var(--header-font), system-ui, sans-serif;
     font-weight: 500;
-    font-size: clamp(2rem, 7vw, 5rem);
-    line-height: .92;
+    /* Always one line: starts near the right size, then the script at the
+       bottom fine-tunes it to fill the width exactly (never above 5rem) */
+    font-size: min(5rem, calc((100vw - 2 * var(--edge)) / 16.5));
+    white-space: nowrap;
+    line-height: 1;
     letter-spacing: -.01em;
   }
   .school {
@@ -484,6 +487,18 @@ function applyFilters() {
 }
 
 buildRow("topic-filter", "topic", usedTopics);
+
+/* Fit the title on one line at any screen width */
+const title = document.querySelector("h1");
+const TITLE_MAX = 80; // px, same as 5rem
+function fitTitle() {
+  title.style.fontSize = TITLE_MAX + "px";
+  const room = title.clientWidth, need = title.scrollWidth;
+  if (need > room) title.style.fontSize = Math.floor(TITLE_MAX * room / need * 0.98) + "px";
+}
+fitTitle();
+addEventListener("resize", fitTitle);
+if (document.fonts) document.fonts.ready.then(fitTitle);
 </script>
 </body>
 </html>
