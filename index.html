@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mr. Comiskey's Music Ed Apps</title>
+<title>Mr. Comiskey's Music Ed Web Apps</title>
 <meta name="description" content="Music technology apps for Mr. Comiskey's sound engineering, music production, and songwriting classes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +23,7 @@
   html { background: var(--faceplate); color: var(--silk); }
   body {
     margin: 0;
-    font-family: Archivo, system-ui, sans-serif;
+    font-family: Barlow, system-ui, sans-serif;
     line-height: 1.5;
     overflow-x: clip;
     -webkit-font-smoothing: antialiased;
@@ -212,8 +212,9 @@
 <body>
 
 <header>
-  <h1>Mr. Comiskey's Music Ed Apps</h1>
-  <p class="tagline">Build the Skills, Create the Music.</p>
+  <h1>Mr. Comiskey's Music Ed Web Apps</h1>
+    <p class="tagline">Lane Tech High School - Chicago, IL</p>
+  <p class="tagline">Tools for building creative, technical, & musical skills.</p>
 </header>
 
 <nav class="filters" aria-label="Filter by topic">
@@ -256,58 +257,59 @@
    ===================================================================== */
 const ITEMS = [
   {
-    name: "MixerLab",
-    desc: "Run a virtual mixing console. Train your ears on EQ, spot what changed, and match a reference mix.",
-    topics: ["Mixing", "Live Sound", "Sound Recording"],
-    color: "#E2574C"
+    name: "WaveLab",
+    desc: "Explore waveforms, sound, phasem and harmonics side-by-side with The Pudding's Waveforms site.",
+    topics: ["Mixing", "Music Production", "Sound Recording"],
+    color: "#3FA7C9"
   },
   {
     name: "SynthLab",
-    desc: "Build sounds from scratch with oscillators, filters, and envelopes, then recreate patches by ear.",
+    desc: "Learn subtractive synthesis.",
     topics: ["Music Production"],
     color: "#2FB59B"
   },
   {
+    name: "MixerLab",
+    desc: "A virtual mixing console & ear training app. Learn mixing techniques, explore live mixing scenarios, and train your engineering & musical ears.",
+    topics: ["Mixing", "Live Sound", "Sound Recording"],
+    color: "#E2574C"
+  },
+  {
     name: "AudioPlot",
-    desc: "Design studio and stage plots, then follow the signal from microphone to speaker.",
+    desc: "Design studio and stage plots, exploring signal flow, microphone types, mixers, and other equiment use.",
     topics: ["Live Sound", "Sound Recording"],
     color: "#4A90D9"
   },
   {
-    name: "Launcher",
-    desc: "Open your project assignment with tools beside it: a step checklist, mix tips, chords and notes, BPM, and a glossary.",
-    topics: ["Music Production"],
-    color: "#2E5E4A"
-  },
-  {
     name: "3DMixLab",
-    desc: "See your mix in 3D. Place each instrument by pitch, pan, and depth so every sound gets its own space.",
+    desc: "Learn how to listen to mixes with this diagramming tool, which includes challenges and examples of mixes.",
     topics: ["Mixing", "Music Listening"],
     color: "#8E5BE8"
   },
   {
     name: "AudioQuest",
-    desc: "Choose-your-own-adventure studio challenges. Diagnose recording and mixing problems and pick the right tool to fix them.",
+    desc: "Choose-your-own-adventure mix & recording challenges. Diagnose recording and mixing problems and pick the right tool to fix them.",
     topics: ["Mixing", "Sound Recording"],
     color: "#F0B92B"
   },
   {
     name: "BreakItDown",
-    desc: "Map a song's structure. Tap the tempo, mark verses, choruses, and bridges, and track how the instrumentation changes.",
+    desc: "Map a song's form. Mark verses, choruses, and bridges, and track how the instrumentation and other musical elements change over time.",
     topics: ["Music Listening"],
     color: "#5A63E0"
   },
+  
   {
-    name: "WaveLab",
-    desc: "Explore waveforms and harmonics side by side with The Pudding's waveforms essay, then hear how phase can cancel or boost a sound.",
-    topics: ["Mixing", "Music Production", "Sound Recording"],
-    color: "#3FA7C9"
+    name: "Launcher",
+    desc: "Open a project's Google Doc in a floating window that also includes tools to help with Logic Pro, Mixing, Chords & Notes, Drum Patterns, & more.",
+    topics: ["Music Production"],
+    color: "#2E5E4A"
   },
   {
     type: "link",
     title: "A.M.P. Curriculum",
     url: "https://docs.google.com/presentation/d/1qJR2vEPAK1g6CzM3S-IJ61ZR8hwjvzUZeJmgpsSd5eA/preview?slide=id.p",
-    desc: "Curriculum Slide Deck for Advanced Music Production",
+    desc: "(Outdated) Curriculum Slide Deck for Advanced Music Production",
     topics: ["Music Production"],
     source: "Google Slides",
     image: "media/AMPCurriculum.jpg",
