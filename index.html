@@ -7,9 +7,11 @@
 <meta name="description" content="Music technology apps for Mr. Comiskey's sound engineering, music production, and songwriting classes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Permanent+Marker&display=swap" rel="stylesheet">
+<!-- FONTS: every font used below must also be listed in this line, or the browser can't load it -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300..800&family=Permanent+Marker&display=swap" rel="stylesheet">
 <style>
   :root {
+    --header-font: Outfit;  /* font for the big title; change it here */
     --faceplate: #3A3F45;   /* page background: console faceplate grey */
     --panel: #2C3035;       /* behind tiles and buttons */
     --silk: #E4E7EA;        /* main text: silkscreen white */
@@ -23,7 +25,7 @@
   html { background: var(--faceplate); color: var(--silk); }
   body {
     margin: 0;
-    font-family: Outfit, system-ui, sans-serif;
+    font-family: Outfit, system-ui, sans-serif;  /* font for everything else */
     line-height: 1.5;
     overflow-x: clip;
     -webkit-font-smoothing: antialiased;
@@ -34,15 +36,21 @@
   header { padding: clamp(1.5rem, 5vw, 3.5rem) var(--edge) 1.25rem; }
   h1 {
     margin: 0;
+    font-family: var(--header-font), system-ui, sans-serif;
     font-weight: 500;
-    font-stretch: 70%;
     font-size: clamp(2rem, 7vw, 5rem);
     line-height: .92;
     letter-spacing: -.01em;
   }
-  .tagline {
+  .school {
     margin: .9rem 0 0;
-    max-width: 42ch;
+    font-size: clamp(.95rem, 1.4vw, 1.1rem);
+    font-weight: 600;
+    color: var(--silk);
+  }
+  .tagline {
+    margin: .15rem 0 0;
+    max-width: 60ch;
     font-size: clamp(1rem, 1.6vw, 1.25rem);
     color: var(--silk-dim);
   }
@@ -213,7 +221,8 @@
 
 <header>
   <h1>Mr. Comiskey's Music Ed Web Apps</h1>
-    <p class="tagline">Lane Tech High School - Chicago, IL             Tools for building creative, technical, & musical skills.</p>
+  <p class="school">Lane Tech High School, Chicago, IL</p>
+  <p class="tagline">Tools for building creative, technical, &amp; musical skills.</p>
 </header>
 
 <nav class="filters" aria-label="Filter by topic">
@@ -257,7 +266,7 @@
 const ITEMS = [
   {
     name: "WaveLab",
-    desc: "Explore waveforms, sound, phasem and harmonics side-by-side with The Pudding's Waveforms site.",
+    desc: "Explore waveforms, sound, phase, and harmonics side-by-side with The Pudding's Waveforms site.",
     topics: ["Mixing", "Music Production", "Sound Recording"],
     color: "#3FA7C9"
   },
@@ -275,7 +284,7 @@ const ITEMS = [
   },
   {
     name: "AudioPlot",
-    desc: "Design studio and stage plots, exploring signal flow, microphone types, mixers, and other equiment use.",
+    desc: "Design studio and stage plots, exploring signal flow, microphone types, mixers, and other equipment use.",
     topics: ["Live Sound", "Sound Recording"],
     color: "#4A90D9"
   },
