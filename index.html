@@ -153,6 +153,20 @@
         color-mix(in srgb, var(--c) 40%, black) 100%);
   }
 
+  /* App logo: full color, centered, fades out when the box is previewed */
+  .logo {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+    transition: opacity .3s, transform .35s;
+  }
+  .logo img {
+    max-width: 52%; max-height: 52%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .55));
+  }
+  .tile.active .logo { opacity: 0; transform: scale(.9); }
+
   /* Board tape title */
   .tape {
     position: absolute;
@@ -219,7 +233,7 @@
   footer a { color: var(--silk); text-decoration-color: var(--led); text-underline-offset: 3px; }
 
   @media (prefers-reduced-motion: reduce) {
-    .tile, .media, .info, .media video { transition: none; }
+    .tile, .media, .info, .media video, .logo { transition: none; }
     .tile.active { transform: none; }
   }
 </style>
@@ -340,6 +354,7 @@ ITEMS.forEach(it => {
   it.url = it.url || "https://" + it.name.toLowerCase() + ".mrcomiskey.com";
   if (it.image === undefined) it.image = "media/" + it.name + ".jpg";
   if (it.video === undefined) it.video = "media/" + it.name + ".mp4";
+  if (it.logo === undefined) it.logo = "media/" + it.name + "-logo.png";
 });
 
 // Filter buttons appear in this order (any other topic you use is added at the end)
@@ -396,7 +411,19 @@ ITEMS.forEach((item, i) => {
     v.setAttribute("aria-hidden", "true");
     media.append(v);
   }
-  link.append(media, el("span", "tape", item.title));
+  link.append(media);
+  if (item.logo) {   // optional: skipped silently if the file isn't there
+    const wrap = el("div", "logo");
+    const lg = new Image();
+    lg.alt = "";
+    lg.loading = "lazy";
+    lg.decoding = "async";
+    lg.onerror = () => wrap.remove();
+    lg.src = item.logo;
+    wrap.append(lg);
+    link.append(wrap);
+  }
+  link.append(el("span", "tape", item.title));
   if (isLink && item.source) link.append(el("span", "source", item.source));
 
   const info = el("div", "info");
