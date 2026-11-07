@@ -153,17 +153,38 @@
         color-mix(in srgb, var(--c) 40%, black) 100%);
   }
 
-  /* App logo: full color, centered, fades out when the box is previewed */
+  /* App logo: full color, centered, fades out when the box is previewed.
+     The badge gives it a raised look (rim light, bevel, drop shadow) so it
+     stands out from any screenshot, light or dark. */
   .logo {
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
+    container-type: size;
     pointer-events: none;
     transition: opacity .7s ease;
   }
-  .logo img {
-    max-width: 39%; max-height: 39%;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .55));
+  .badge {
+    position: relative;
+    display: block;
+    width: min(39cqw, 39cqh); aspect-ratio: 1;
+    border-radius: 22.5%;
+    box-shadow:
+      0 0 0 1.5px rgba(255, 255, 255, .7),      /* light rim */
+      0 0 0 3px rgba(0, 0, 0, .35),             /* dark keyline outside the rim */
+      0 10px 22px rgba(0, 0, 0, .6),            /* drop shadow */
+      0 0 28px rgba(255, 255, 255, .18);        /* soft halo */
+  }
+  .badge img { display: block; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; }
+  .badge::after {   /* bevel: glossy top highlight + darker bottom edge */
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .32) 0%, rgba(255, 255, 255, 0) 38%, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, .28) 100%);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .65),
+      inset 0 -2px 3px rgba(0, 0, 0, .4),
+      inset 1px 0 0 rgba(255, 255, 255, .25),
+      inset -1px 0 0 rgba(0, 0, 0, .2);
   }
   .tile.active .logo { opacity: 0; }
 
@@ -421,7 +442,9 @@ ITEMS.forEach((item, i) => {
     lg.decoding = "async";
     lg.onerror = () => wrap.remove();
     lg.src = item.logo;
-    wrap.append(lg);
+    const badge = el("span", "badge");
+    badge.append(lg);
+    wrap.append(badge);
     link.append(wrap);
   }
   link.append(el("span", "tape", item.title));
